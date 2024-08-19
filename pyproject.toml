@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "API wrapper for the Remote TTS integration of Home Assistant"
 authors = ["NicolasNewman <nnewman316@gmail.com>"]
 readme = "README.md"
-packages = [{include = "ha_remote_tts"}]
+packages = [{ include = "ha_remote_tts" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"
