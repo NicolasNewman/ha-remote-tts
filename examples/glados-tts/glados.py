@@ -11,13 +11,12 @@ import tempfile
 import subprocess
 from pydub import AudioSegment
 
-print('Initializing TTS Engine...')
-
 kwargs = {'stdout': subprocess.PIPE, 'stderr': subprocess.PIPE, 'stdin': subprocess.PIPE}
 
 
 class tts_runner:
 	def __init__(self, use_p1: bool = False, log: bool = False):
+		print('Initializing TTS Engine...')
 		self.log = log
 		if use_p1:
 			self.emb = torch.load('models/emb/glados_p1.pt')

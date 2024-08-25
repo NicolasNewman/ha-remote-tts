@@ -4,7 +4,7 @@ import time
 
 
 # see: https://github.com/R2D2FISH/glados-tts
-from .glados import tts_runner
+from glados import tts_runner
 
 glados = tts_runner(False, True)
 
