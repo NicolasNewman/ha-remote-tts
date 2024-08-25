@@ -32,7 +32,7 @@ class tts_runner:
 
 		# Load models
 		self.glados = torch.jit.load('models/glados-new.pt')
-		self.vocoder = torch.jit.load('models/vocoder-gpu.pt', map_location=self.device)
+		self.vocoder = torch.jit.load('models/vocoder-cpu-hq.pt', map_location=self.device)
 		for i in range(2):
 			init = self.glados.generate_jit(prepare_text(str(i)), self.emb, 1.0)
 			init_mel = init['mel_post'].to(self.device)
@@ -61,6 +61,5 @@ class tts_runner:
 			audio = audio.cpu().numpy().astype('int16')
 			output_file = tempfile.TemporaryFile()
 			write(output_file, 22050, audio)
-			sound = AudioSegment.from_wav(output_file)
-			output_file.close()
-			return sound
+
+			return output_file.raw.readall()

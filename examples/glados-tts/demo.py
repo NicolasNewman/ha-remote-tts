@@ -12,7 +12,7 @@ glados = tts_runner(False, True)
 def synthesize(line):
 	if line == '':
 		return b'', 'unknown'
-	audio = glados.run_tts(line, 1.0).raw_data
+	audio = glados.run_tts(line, 1.0)
 
 	return audio, 'wav'
 
