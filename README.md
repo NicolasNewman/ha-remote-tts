@@ -1,9 +1,9 @@
 # ha-remote-tts
 
-|         |   |
-| ------- | - |
+|         |                                                                                                                                                                                                                                                          |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Package | [![PyPI Latest Release](https://img.shields.io/pypi/v/ha-remote-tts.svg)](https://pypi.org/project/ha-remote-tts/) [![PyPI Downloads](https://img.shields.io/pypi/dm/ha-remote-tts.svg?label=PyPI%20downloads)](https://pypi.org/project/ha-remote-tts/) |
-| Meta    | [![License - MIT](https://img.shields.io/pypi/l/ha-remote-tts.svg)](https://github.com/NicolasNewman/ha-remote-tts/blob/main/LICENSE) |
+| Meta    | [![License - MIT](https://img.shields.io/pypi/l/ha-remote-tts.svg)](https://github.com/NicolasNewman/ha-remote-tts/blob/main/LICENSE)                                                                                                                    |
 
 ## What is it?
 
@@ -47,3 +47,7 @@ import asyncio
 client = RemoteTTSClient('http://127.0.0.1:8080')
 asyncio.run(client.synthesize('Hello, how are you?'))
 ```
+
+### Demos
+
+See [examples/](https://github.com/NicolasNewman/ha-remote-tts/tree/main/examples/) for real world demos.
