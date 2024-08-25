@@ -1,9 +1,11 @@
 """Module for provisioning a RemoteTTS Client/Server"""
 
-from aiohttp import ClientSession, web
+from aiohttp import ClientSession, web, ClientResponseError, ClientTimeout, ClientConnectionError
 from asyncio import sleep
 from typing import Callable, Awaitable, Tuple
 import base64
+
+from .exception import ApiError
 
 
 class RemoteTTSClient:
@@ -14,14 +16,32 @@ class RemoteTTSClient:
 		:param host: API url
 		"""
 		self._host = host
+		self._timeout = ClientTimeout(connect=5, total=30)
+		self._session = ClientSession(host, timeout=self._timeout)
+
+	async def close(self):
+		await self._session.close()
+		self._session = None
+
+	async def verify_connection(self):
+		try:
+			async with self._session.get('/', timeout=self._timeout) as resp:
+				resp.raise_for_status()
+		except ClientConnectionError:
+			await self.close()
+			raise ApiError(status_code=404, body='Could not connect to server')
+		except ClientResponseError as err:
+			raise ApiError(status_code=err.status, body=err.message)
 
 	async def synthesize(self, text: str) -> tuple[str, bytes]:
 		"""Synthesize the inputted text into audio by calling the API located at host
 
 		:param text: text to turn into spoken audio
 		"""
-		async with ClientSession(self._host) as session:
-			async with session.post('/synthesize', data={'text': text}) as resp:
+		try:
+			async with self._session.post(
+				'/synthesize', data={'text': text}, timeout=self._timeout
+			) as resp:
 				data: dict = await resp.json(content_type='application/json; charset=utf-8')
 				audio_b64 = data.get('audio')
 				format = data.get('format')
@@ -33,9 +53,13 @@ class RemoteTTSClient:
 				audio = base64.b64decode(audio_b64)
 
 				return format, audio
+		except ClientConnectionError as err:
+			await self.close()
+			raise ApiError(status_code=404, body='Could not connect to server')
+		except ClientResponseError as err:
+			raise ApiError(status_code=err.status, body=err.message)
 
 
-# https://docs.aiohttp.org/en/stable/web_quickstart.html#file-uploads
 class RemoteTTSServer:
 	"""RemoteTTS Server class"""
 
@@ -46,9 +70,12 @@ class RemoteTTSServer:
 		:param callback: Callback function for generating the tts audio
 		"""
 		self._app = web.Application()
-		self._app.add_routes([web.post('/synthesize', self.synthesize)])
+		self._app.add_routes([web.post('/synthesize', self.synthesize), web.get('/', self.status)])
 		self._callback = callback
 		self._runner = web.AppRunner(self._app)
+
+	async def status(self, request: web.Request) -> Awaitable[web.StreamResponse]:
+		return web.json_response({'status': 'Ok'})
 
 	async def synthesize(self, request: web.Request) -> Awaitable[web.StreamResponse]:
 		"""Synthesization POST route
